@@ -83,16 +83,16 @@ ticker_html = '''
 </style>
 
 <div class="ticker-container">
-    <div class="ticker-content">
+<div class="ticker-content">
 '''
-
+# ticker_html = ''''''
 # Add each stock to the ticker with appropriate styling
 for symbol, data in st.session_state.live_prices.items():
     price = data['price']
     change = data['change']
     price_class = "price-up" if change >= 0 else "price-down"
     change_prefix = "+" if change >= 0 else ""
-    
+    print(f"Symbol: {symbol}, Price: {price}, Change: {change}")
     ticker_html += f'''
     <div class="ticker-item">
         <strong>{symbol}</strong>: ₹{price:.2f} 
@@ -100,24 +100,24 @@ for symbol, data in st.session_state.live_prices.items():
     </div>
     '''
 
-# Duplicate the content for smoother continuous scrolling
-for symbol, data in st.session_state.live_prices.items():
-    price = data['price']
-    change = data['change']
-    price_class = "price-up" if change >= 0 else "price-down"
-    change_prefix = "+" if change >= 0 else ""
+# # Duplicate the content for smoother continuous scrolling
+# for symbol, data in st.session_state.live_prices.items():
+#     price = data['price']
+#     change = data['change']
+#     price_class = "price-up" if change >= 0 else "price-down"
+#     change_prefix = "+" if change >= 0 else ""
     
-    ticker_html += f'''
-    <div class="ticker-item">
-        <strong>{symbol}</strong>: ₹{price:.2f} 
-        <span class="{price_class}">{change_prefix}{change:.2f}%</span>
-    </div>
-    '''
+#     ticker_html += f'''
+#     <div class="ticker-item">
+#         <strong>{symbol}</strong>: ₹{price:.2f} 
+#         <span class="{price_class}">{change_prefix}{change:.2f}%</span>
+#     </div>
+#     '''
 
-ticker_html += '''
-    </div>
-</div>
-'''
+# ticker_html += '''
+#     </div>
+# </div>
+# '''
 
 # Display the ticker
 st.markdown(ticker_html, unsafe_allow_html=True)
@@ -224,6 +224,7 @@ with col2:
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         response = ""
         lower_input = user_input.lower()
+        print(f"User input: {user_input}")
 
         # Detect request for chart or stock data
         if "chart" in lower_input or "price" in lower_input:
@@ -241,23 +242,27 @@ with col2:
 
         # BUY / RECOMMENDATIONS
         elif any(word in lower_input for word in ["buy", "recommend", "top pick", "top stocks", "which stock"]):
+            # print("Fetching recommendations...")
             recommendations = get_stockrecommendations()
-            if recommendations:
-                response = "📈 Here are today's top BUY picks:\n\n"
-                for rec in recommendations:
-                    response += f"- {rec['symbol']}: {rec['action']} – {rec['reason']}\n"
+            # print(f"Recommendations: {recommendations}")
+            # if recommendations:
+            #     response = "📈 Here are today's top BUY picks:\n\n"
+            #     for rec in recommendations:
+            #         response += f"- {rec['symbol']}: {rec['action']} – {rec['reason']}\n"
+            st.markdown("### Today's Stock Picks")
+            recommendations = get_stockrecommendations()
+            print(f"Recommendations: {recommendations}")
+            for i in recommendations:
+                st.success(i)
             else:
                 response = "No top picks found at the moment. Try again later."
 
         # SELL suggestions
         elif any(word in lower_input for word in ["sell", "dump", "what to avoid", "exit"]):
-            sell_recs = get_sellrecommendations()
-            if sell_recs:
-                response = "📉 Stocks showing weakness today (SELL suggestions):\n\n"
-                for rec in sell_recs:
-                    response += f"- {rec['symbol']}: {rec['action']} – {rec['reason']}\n"
-            else:
-                response = "No sell suggestions available right now. Market looks stable."
+            recommendations = get_sellrecommendations()
+            print(f"Recommendations1: {recommendations}")
+            for i in recommendations:
+                st.error(i)
 
         # Market overview
         elif any(word in lower_input for word in ["market summary", "today's trend", "market today", "what's the trend"]):
@@ -318,22 +323,25 @@ with col2:
 
         st.session_state.chat_history.append({"role": "assistant", "content": response})
 
-    st.markdown("### Today's Stock Picks")
-    recommendations = get_stockrecommendations()
 
-    if recommendations:
-        for rec in recommendations:
-            symbol = rec["symbol"].replace('.NS', '')
-            action = rec["action"]
-            reason = rec["reason"]
-            color = "green" if action == "BUY" else "red" if action == "SELL" else "orange"
+    
 
-            st.markdown(f"""
-            <div style="padding:10px; border-left:5px solid {color}; margin-bottom:10px; background-color:black; border-radius: 5px;">
-                <h4>{symbol}: <span style="color:{color}">{action}</span></h4>
-                <p>{reason}</p>
-            </div>
-            """, unsafe_allow_html=True)
+
+    # if recommendations:
+    #     st.markdown("**Top Gainers:**")
+    #     st.markdown(f"{recommendations}")
+        # for rec in recommendations:
+        #     symbol = rec["symbol"].replace('.NS', '')
+        #     action = rec["action"]
+        #     reason = rec["reason"]
+        #     color = "green" if action == "BUY" else "red" if action == "SELL" else "orange"
+
+        #     st.markdown(f"""
+        #     <div style="padding:10px; border-left:5px solid {color}; margin-bottom:10px; background-color:black; border-radius: 5px;">
+        #         <h4>{symbol}: <span style="color:{color}">{action}</span></h4>
+        #         <p>{reason}</p>
+        #     </div>
+        #     """, unsafe_allow_html=True)
     else:
         st.warning("No stock recommendations available today.")
 

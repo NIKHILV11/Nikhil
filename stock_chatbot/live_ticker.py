@@ -68,7 +68,7 @@ def start_live_ticker():
 
 def main():
     st.title("Indian Stock Market Assistant")
-    st.subheader("Get stock information, charts, news, and smart recommendations.")
+    # st.subheader("Get stock information, charts, news, and smart recommendations.")
     
     # Start the ticker thread when the app loads
     start_live_ticker()

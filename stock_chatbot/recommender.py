@@ -1,72 +1,52 @@
 import requests
 from bs4 import BeautifulSoup
 
+import requests
+from bs4 import BeautifulSoup
+
 def get_stockrecommendations():
-    url = "https://www.moneycontrol.com/stocks/marketstats/nsegainer/index.php"
-    headers = {"User-Agent": "Mozilla/5.0"}
-    
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        table = soup.find("table", class_="tbldata14")
+    url = "https://indian-stock-exchange-api2.p.rapidapi.com/trending"
 
-        if not table:
-            raise ValueError("Could not find gainer table on page.")
+    headers = {
+        "x-rapidapi-key": "1192519b8amsh670ca6a7268aae0p1ceff6jsnd8595bf88a6a",
+        "x-rapidapi-host": "indian-stock-exchange-api2.p.rapidapi.com"
+    }
 
-        rows = table.find_all("tr")[1:6]  # Top 5 gainers
-        recommendations = []
-
-        for row in rows:
-            cols = row.find_all("td")
-            if len(cols) >= 5:
-                symbol = cols[0].text.strip()
-                last_price = cols[1].text.strip()
-                change_pct = cols[4].text.strip()
-
-                recommendations.append({
-                    "symbol": symbol,
-                    "action": "BUY",
-                    "reason": f"Gaining {change_pct} today. Price: ₹{last_price}"
-                })
-
-        return recommendations
-
-    except Exception as e:
-        print(f"Error scraping stock recommendations: {e}")
-        return [{"symbol": "N/A", "action": "HOLD", "reason": "Recommendation data not available currently."}]
+    response = requests.get(url, headers=headers)
+    recommendations = []
+    # print(response.json())
+    if response.status_code == 200:
+        response = response.json()
+        trending_stocks = response['trending_stocks']
+        list = trending_stocks["top_gainers"]
+        for i in list:
+            stock = i['company_name']
+            recommendations.append(stock)
+        
+    # # return response['trending_stocks']
+    # # print(response.json())'
+    # print(recommendations)
+    return recommendations
 
 def get_sellrecommendations():
-    url = "https://www.moneycontrol.com/stocks/marketstats/nseloser/index.php"
-    headers = {"User-Agent": "Mozilla/5.0"}
+    url = "https://indian-stock-exchange-api2.p.rapidapi.com/trending"
+    headers = {
+        "x-rapidapi-key": "1192519b8amsh670ca6a7268aae0p1ceff6jsnd8595bf88a6a",
+        "x-rapidapi-host": "indian-stock-exchange-api2.p.rapidapi.com"
+    }
 
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        table = soup.find("table", class_="tbldata14")
-
-        if not table:
-            raise ValueError("Could not find loser table on page.")
-
-        rows = table.find_all("tr")[1:6]  # Top 5 losers
-        recommendations = []
-
-        for row in rows:
-            cols = row.find_all("td")
-            if len(cols) >= 5:
-                symbol = cols[0].text.strip()
-                last_price = cols[1].text.strip()
-                change_pct = cols[4].text.strip()
-
-                recommendations.append({
-                    "symbol": symbol,
-                    "action": "SELL",
-                    "reason": f"Dropped {change_pct} today. Price: ₹{last_price}"
-                })
-
-        return recommendations
-
-    except Exception as e:
-        print(f"Error scraping stock sell suggestions: {e}")
-        return [{"symbol": "N/A", "action": "HOLD", "reason": "Sell data not available."}]
+    response = requests.get(url, headers=headers)
+    recommendations = []
+    # print(response.json())
+    if response.status_code == 200:
+        response = response.json()
+        trending_stocks = response['trending_stocks']
+        list = trending_stocks["top_losers"]
+        # print(response.json())
+        for i in list:
+            stock = i['company_name']
+            recommendations.append(stock)
+    # # return response['trending_stocks']
+    # # print(response.json())'
+    # print(recommendations)
+    return recommendations

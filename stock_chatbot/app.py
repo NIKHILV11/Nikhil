@@ -7,6 +7,7 @@ from fetch_stock import get_stock_data, get_current_price, create_stock_chart, e
 from news_fetcher import fetch_news
 from recommender import get_stockrecommendations, get_sellrecommendations
 from live_ticker import start_live_ticker
+from prediction import predict
 
 # Start the live ticker thread
 start_live_ticker()
@@ -322,6 +323,21 @@ with col2:
                 response = "I can help with stock charts, prices, top picks, and news. Try 'top picks', 'sell today', or 'market summary'."
 
         st.session_state.chat_history.append({"role": "assistant", "content": response})
+    else:
+        st.warning("No stock recommendations available today.")
+
+st.markdown("### Predict")
+stock_input = st.text_input("Type the stock symbol (e.g., RELIANCE, TCS)")
+if stock_input:
+    with st.spinner(f"Fetching data for {stock_input}..."):
+        prediction,mae,rmse,r2 = predict(stock_input)
+        st.success(f"Predicted next closing price for {stock_input}: ₹{prediction:.2f}")
+        st.markdown(f"**Evaluation Metrics:**")
+        st.markdown(f"- MAE: {mae:.2f}")
+        st.markdown(f"- RMSE: {rmse:.2f}")
+        st.markdown(f"- R²: {r2:.4f}")
+
+        
 
 
     
@@ -342,8 +358,8 @@ with col2:
         #         <p>{reason}</p>
         #     </div>
         #     """, unsafe_allow_html=True)
-    else:
-        st.warning("No stock recommendations available today.")
+    
+
 
 # ------------------------------
 # ✅ FOOTER

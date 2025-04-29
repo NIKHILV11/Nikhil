@@ -89,7 +89,7 @@ ticker_html = '''
 # Add each stock to the ticker with appropriate styling
 for symbol, data in st.session_state.live_prices.items():
     price = data['price']
-    change = data['change']
+    # change = data['change']
     price_class = "price-up" if change >= 0 else "price-down"
     change_prefix = "+" if change >= 0 else ""
     print(f"Symbol: {symbol}, Price: {price}, Change: {change}")
